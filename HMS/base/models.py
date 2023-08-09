@@ -68,7 +68,7 @@ class Facilities(models.Model):
 class Service(Facilities):
     pass
 
-class Bills(models.Model):
+class Bill(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     amount = models.IntegerField()
@@ -79,4 +79,4 @@ class Bills(models.Model):
 class Payment_info(models.Model):
     paid_amount = models.IntegerField()
     payment_method = models.CharField(max_length=20, choices= payment_method_list)
-    bill = models.ForeignKey(Bills, on_delete=models.CASCADE)
+    bill = models.ForeignKey(Bill, on_delete=models.CASCADE)
