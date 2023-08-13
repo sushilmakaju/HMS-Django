@@ -4,10 +4,24 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import *
 from .models import *
-from rest_framework import status
-
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 
 # Create your views here.
+
+@api_view(['POST'])
+def login_view(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+    user = authenticate(username=email, password=password)
+    if user != None:
+        token,_ = Token.objects.get_or_create(user=user)
+        # print("Generated Token:", token)
+        return Response({'token':token.key})
+
+
 @api_view(['GET', 'POST'])
 def RoomTypeView(request):
     if request.method == 'GET':
@@ -42,7 +56,7 @@ def CustomerDetailsView(request):
 def RoomTypeDetailsView(request,pk):
     if request.method == 'GET':
         try:
-            Room_type_detail_obj = RoomType.objects.get(id = pk)
+            Room_type_detail_obj = RoomType.object.filter(id = pk)
         except:
             return Response('Data Not Found!')
         serializer = RoomTypeSerializers(Room_type_detail_obj)
@@ -65,5 +79,42 @@ def RoomTypeDetailsView(request,pk):
             return Response('Data Not Found!')
         room_type_obj.delete()
         return Response('Data Deleted!')
-        
+    
+
+@api_view(['GET', 'POST'])
+
+def room_view(request,pk):
+    if request.method == 'GET':
+        room_objects = Room.objects.filter(room_type = pk)
+        serializer = RoomSerializers(room_objects, many = True)
+        return Response(serializer.data)
+     
+    elif request.method == 'POST':
+        serializer = RoomSerializers(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    
+
+class Roomapiview(GenericAPIView):
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['room_type', 'status'] 
+    serializer_class = RoomSerializers
+    permission_classes = [IsAuthenticated]
+    
+    def get(self,request,pk):
+        room_objects = Room.objects.all()
+        filter_obj = self.filter_queryset(room_objects)
+        serializer = self.serializer_class(filter_obj, many = True)
+        return Response(serializer.data)
+    
+    def post(self,request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
 
