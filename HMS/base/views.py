@@ -8,6 +8,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
+from .permissions import *
+from django.contrib.auth.hashers import make_password
 
 # Create your views here.
 
@@ -31,6 +34,21 @@ def RoomTypeView(request):
     
     elif request.method == 'POST':
         serializer = RoomTypeSerializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+        
+@api_view(['GET', 'POST'])
+def MenuTypeView(request):
+    if request.method == 'GET':
+        menu_type_obj = MenuType.objects.all()
+        serializer = MenuTypeSerializer(menu_type_obj, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = MenuTypeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -81,35 +99,57 @@ def RoomTypeDetailsView(request,pk):
         return Response('Data Deleted!')
     
 
-@api_view(['GET', 'POST'])
+# @api_view(['GET', 'POST'])
 
-def room_view(request,pk):
-    if request.method == 'GET':
-        room_objects = Room.objects.filter(room_type = pk)
-        serializer = RoomSerializers(room_objects, many = True)
-        return Response(serializer.data)
+# def room_view(request,pk):
+#     if request.method == 'GET':
+#         room_objects = Room.objects.filter(room_type = pk)
+#         serializer = RoomSerializers(room_objects, many = True)
+#         return Response(serializer.data)
      
-    elif request.method == 'POST':
-        serializer = RoomSerializers(data=request.data)
-        if serializer.is_valid():
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
+#     elif request.method == 'POST':
+#         serializer = RoomSerializers(data=request.data)
+#         if serializer.is_valid():
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
     
 
-class Roomapiview(GenericAPIView):
+class RoomApiView(GenericAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['room_type', 'status'] 
     serializer_class = RoomSerializers
-    permission_classes = [IsAuthenticated]
-    
-    def get(self,request,pk):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, FrontDeskUserPermission]  # Apply the custom permission
+
+    def get(self, request):  # pk parameter is not used, remove it if unnecessary
         room_objects = Room.objects.all()
         filter_obj = self.filter_queryset(room_objects)
-        serializer = self.serializer_class(filter_obj, many = True)
+        serializer = self.serializer_class(filter_obj, many=True)
         return Response(serializer.data)
     
-    def post(self,request):
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+class FoodApiView(GenericAPIView):
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['menutype']
+    serializer_class = FoodSerializer 
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, RestaurantUserPermisssion]  # Apply the custom permission
+
+    def get(self, request):
+        food_obj = Food.objects.all()
+        filter_obj = self.filter_queryset(food_obj)
+        serializer = self.serializer_class(filter_obj, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -118,3 +158,25 @@ class Roomapiview(GenericAPIView):
             return Response(serializer.errors)
 
 
+
+
+    
+
+
+@api_view(['POST'])
+
+def register_view(request):
+
+    if request.method == 'POST':
+        request.data['username'] = 'user'
+        
+        password = request.data.get("password")
+        hash_password = make_password(password)
+        request.data['password'] = hash_password
+        serializer = UserSerializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('user created')
+        else:
+            return Response(serializer.errors)
+    

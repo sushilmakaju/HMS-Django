@@ -1,6 +1,12 @@
 from rest_framework import serializers
 from .models import *
 
+
+class UserSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
 class RoomTypeSerializers(serializers.ModelSerializer):
     class Meta:
         model = RoomType
@@ -21,15 +27,16 @@ class EmployeeDetailserializers(serializers.ModelSerializer):
         model = EmployeeDetail
         field = '__all__'
 
-class MenuTypeserializers(serializers.ModelSerializer):
+
+class MenuTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuType
-        field = '__all__'
+        fields = '__all__' 
 
-class Foodserializers(serializers.ModelSerializer):
+class FoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
-        field = '__all__'
+        fields = '__all__'
 
 class Facilitiesserializers(serializers.ModelSerializer):
     class Meta:

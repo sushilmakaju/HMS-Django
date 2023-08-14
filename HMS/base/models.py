@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 User_Type_List = [('Frontdesk', 'Frontdesk'), ('Restaurant', 'Restaurant'), ('Accounting', 'Accounting'), ('Management', 'Management')]
 room_status_list = [('Available','Available'),('Unavailable','Unavailable')]
 gender_type_list = [('Male', 'Male'), ('Female', 'Female'), ('Others','Others')]
-foodtype_list = [('Nonveg', 'Nonveg'), ('veg', 'veg')]
+foodtype_list = [('Khajaset', 'khajaset'), ('Stickfood', 'Stickfood'), ('Khanaset', 'Khanaset')]
 status_list = [('Paid', 'Paid'), ('Unpaid', 'Unpaid')]
 payment_method_list = [('Cash', 'Cash'), ('Fonepay', 'Fonepay')]
 
