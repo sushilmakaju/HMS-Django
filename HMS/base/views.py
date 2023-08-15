@@ -23,6 +23,8 @@ def login_view(request):
         token,_ = Token.objects.get_or_create(user=user)
         # print("Generated Token:", token)
         return Response({'token':token.key})
+    else:
+	    return Response('Error')
 
 
 @api_view(['GET', 'POST'])
@@ -122,7 +124,7 @@ class RoomApiView(GenericAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, FrontDeskUserPermission]  # Apply the custom permission
 
-    def get(self, request):  # pk parameter is not used, remove it if unnecessary
+    def get(self, request):  
         room_objects = Room.objects.all()
         filter_obj = self.filter_queryset(room_objects)
         serializer = self.serializer_class(filter_obj, many=True)
@@ -156,11 +158,99 @@ class FoodApiView(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
-
-
-
-
     
+    def delete(self,request,pk):
+        try:
+            Food_type_obj = Food.objects.filter(menutype = pk)
+        except:
+            return Response('Data Not Found!')
+        Food_type_obj.delete()
+        return Response('Data Deleted!')
+
+
+class BillApiView(GenericAPIView):
+    filter_backends = [DjangoFilterBackend]
+    serializer_class = BillSerializer 
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, AccountingUserPermission]  # Apply the custom permission
+
+    def get(self, request):
+        bill_obj = Bill.objects.all()
+        filter_obj = self.filter_queryset(bill_obj)
+        serializer = self.serializer_class(filter_obj, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class paymentinfoApiView(GenericAPIView):
+    filter_backends = [DjangoFilterBackend]
+    serializer_class = Paymentinfoserializers 
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, PaymentinfoUserPermission]  # Apply the custom permission
+
+    def get(self, request):
+        bill_obj = Payment_info.objects.all()
+        filter_obj = self.filter_queryset(bill_obj)
+        serializer = self.serializer_class(filter_obj, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class FacilitiesApiView(GenericAPIView):
+    filter_backends = [DjangoFilterBackend]
+    serializer_class = Facilitiesserializers 
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, ManagementUserPermission]
+
+    def get(self,request):
+        facility_obj = Facilities.objects.all()
+        filter_obj = self.filter_queryset(facility_obj)
+        serializer = self.serializer_class(filter_obj, many = True)
+        return Response(serializer.data)
+    
+    def post(self,request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+class ServiceApiView(GenericAPIView):
+    filter_backends = [DjangoFilterBackend]
+    serializer_class = Serviceserializers 
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, ManagementUserPermission]
+
+    def get(self,request):
+        facility_obj = Service.objects.all()
+        filter_obj = self.filter_queryset(facility_obj)
+        serializer = self.serializer_class(filter_obj, many = True)
+        return Response(serializer.data)
+    
+    def post(self,request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    
+   
 
 
 @api_view(['POST'])

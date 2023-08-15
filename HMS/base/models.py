@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
 
-User_Type_List = [('Frontdesk', 'Frontdesk'), ('Restaurant', 'Restaurant'), ('Accounting', 'Accounting'), ('Management', 'Management')]
+User_Type_List = [('Frontdesk', 'Frontdesk'), ('Restaurant', 'Restaurant'), ('Account', 'Account'), ('Management', 'Management')]
 room_status_list = [('Available','Available'),('Unavailable','Unavailable')]
 gender_type_list = [('Male', 'Male'), ('Female', 'Female'), ('Others','Others')]
 foodtype_list = [('Khajaset', 'khajaset'), ('Stickfood', 'Stickfood'), ('Khanaset', 'Khanaset')]

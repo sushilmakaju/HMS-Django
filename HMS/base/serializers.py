@@ -25,7 +25,7 @@ class CustomerDetailserializers(serializers.ModelSerializer):
 class EmployeeDetailserializers(serializers.ModelSerializer):
     class Meta:
         model = EmployeeDetail
-        field = '__all__'
+        fields = '__all__'
 
 
 class MenuTypeSerializer(serializers.ModelSerializer):
@@ -41,19 +41,19 @@ class FoodSerializer(serializers.ModelSerializer):
 class Facilitiesserializers(serializers.ModelSerializer):
     class Meta:
         model = Facilities
-        field = '__all__'
+        fields = '__all__'
 
 class Serviceserializers(serializers.ModelSerializer):
     class Meta:
         model = Service
-        field = '__all__'
+        fields = '__all__'
 
-class Billserializers(serializers.ModelSerializer):
+class BillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bill
-        field = '__all__'
+        fields = '__all__' 
 
 class Paymentinfoserializers(serializers.ModelSerializer):
     class Meta:
         model = Payment_info
-        field = '__all__'
+        fields = '__all__'
