@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,authentication_classes, permission_classes
 from rest_framework.response import Response
 from .serializers import *
 from .models import *
@@ -57,7 +57,7 @@ def MenuTypeView(request):
         else:
             return Response(serializer.errors)
     
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def CustomerDetailsView(request):
     # queryobj = {'name':'sushil'}
     # return Response(queryobj)
@@ -101,7 +101,9 @@ def RoomTypeDetailsView(request,pk):
         return Response('Data Deleted!')
     
 
-# @api_view(['GET', 'POST'])
+# @api_view(['GET'])
+# @authentication_classes([TokenAuthentication])  # You can choose the appropriate authentication class here
+# @permission_classes([IsAuthenticated,FrontDeskUserPermission])
 
 # def room_view(request,pk):
 #     if request.method == 'GET':
@@ -109,12 +111,7 @@ def RoomTypeDetailsView(request,pk):
 #         serializer = RoomSerializers(room_objects, many = True)
 #         return Response(serializer.data)
      
-#     elif request.method == 'POST':
-#         serializer = RoomSerializers(data=request.data)
-#         if serializer.is_valid():
-#             return Response(serializer.data)
-#         else:
-#             return Response(serializer.errors)
+
     
 
 class RoomApiView(GenericAPIView):
@@ -137,10 +134,30 @@ class RoomApiView(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+        
+    def delete(self,request,pk):
+        try:
+            room_type_obj = Room.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        room_type_obj.delete()
+        return Response('Data Deleted!')
+    
+    def put(self, request, pk):
+        try:
+            room_type_obj = Room.objects.get(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = self.serializer_class(room_type_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
 class FoodApiView(GenericAPIView):
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['menutype']
+    filterset_fields = ['menutype', 'foodtype']
     serializer_class = FoodSerializer 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, RestaurantUserPermisssion]  # Apply the custom permission
@@ -161,11 +178,23 @@ class FoodApiView(GenericAPIView):
     
     def delete(self,request,pk):
         try:
-            Food_type_obj = Food.objects.filter(menutype = pk)
+            Food_type_obj = Food.objects.filter(id = pk)
         except:
             return Response('Data Not Found!')
         Food_type_obj.delete()
         return Response('Data Deleted!')
+    
+    def put(self, request, pk):
+        try:
+            food_type_obj = Food.objects.get(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = self.serializer_class(food_type_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
 
 class BillApiView(GenericAPIView):
@@ -253,6 +282,7 @@ class ServiceApiView(GenericAPIView):
 
 class EmployeeViewApi(GenericAPIView):
     filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name', 'phone_number']
     serializer_class = EmployeeDetailserializers 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, ManagementUserPermission]
@@ -271,6 +301,20 @@ class EmployeeViewApi(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+    
+    def put(self,request, pk):
+        try:
+            emp_obj = EmployeeDetail.objects.get(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = self.serializer_class(emp_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
     
    
 
