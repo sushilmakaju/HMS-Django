@@ -249,6 +249,28 @@ class ServiceApiView(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+        
+
+class EmployeeViewApi(GenericAPIView):
+    filter_backends = [DjangoFilterBackend]
+    serializer_class = EmployeeDetailserializers 
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, ManagementUserPermission]
+   
+
+    def get(self,request):
+        emp_obj = EmployeeDetail.objects.all()
+        filter_obj = self.filter_queryset(emp_obj)
+        serializer = self.serializer_class(filter_obj, many = True)
+        return Response(serializer.data)
+    
+    def post(self,request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
     
    
 

@@ -15,5 +15,7 @@ urlpatterns = [
     path('payment/',paymentinfoApiView.as_view(), name='paymentinfoApiView'),
     path('Facilities/',FacilitiesApiView.as_view(), name='FacilitiesApiView'),
     path('service/',ServiceApiView.as_view(), name='ServiceApiView'),
+    path('employe/',EmployeeViewApi.as_view(), name='EmployeeViewApi'),
     path('food/<pk>',FoodApiView.as_view(), name='FoodApiView'),
+   
 ]
