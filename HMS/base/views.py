@@ -57,8 +57,8 @@ def MenuTypeView(request):
         else:
             return Response(serializer.errors)
     
-@api_view(['GET', 'POST'])
-def CustomerDetailsView(request):
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+def CustomerDetailsView(request,pk):
     # queryobj = {'name':'sushil'}
     # return Response(queryobj)
     if request.method == 'GET':
@@ -71,6 +71,26 @@ def CustomerDetailsView(request):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+    elif request.method == 'PUT':
+        try:
+            customer_obj = CustomerDetail.objects.get(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = CustomerDetailserializers(customer_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    elif request.method == 'DELETE':
+        try:
+            customer_obj = CustomerDetail.objects.get(id = pk)
+        except:
+            return Response('Data Not Found!')
+        customer_obj.delete()
+        return Response('Data Deleted!')
+    
+
 
 @api_view(['GET','PUT','DELETE'])
 def RoomTypeDetailsView(request,pk):
@@ -216,6 +236,26 @@ class BillApiView(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+    
+    def put(self,request, pk):
+        try:
+            bill_obj = Bill.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = self.serializer_class(bill_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    
+    def delete(self,request,pk):
+        try:
+            bill_obj = Bill.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        bill_obj.delete()
+        return Response('Data Deleted!')
 
 
 class paymentinfoApiView(GenericAPIView):
@@ -225,8 +265,8 @@ class paymentinfoApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, PaymentinfoUserPermission]  # Apply the custom permission
 
     def get(self, request):
-        bill_obj = Payment_info.objects.all()
-        filter_obj = self.filter_queryset(bill_obj)
+        payment_obj = Payment_info.objects.all()
+        filter_obj = self.filter_queryset(payment_obj)
         serializer = self.serializer_class(filter_obj, many=True)
         return Response(serializer.data)
     
@@ -237,6 +277,26 @@ class paymentinfoApiView(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+        
+    def put(self,request, pk):
+        try:
+            Paymentinfo_obj = Payment_info.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = self.serializer_class(Paymentinfo_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    
+    def delete(self,request,pk):
+        try:
+            paymentinfo_obj = Payment_info.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        paymentinfo_obj.delete()
+        return Response('Data Deleted!')
 
 
 class FacilitiesApiView(GenericAPIView):
@@ -258,6 +318,26 @@ class FacilitiesApiView(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+    
+    def put(self,request, pk):
+        try:
+            Facilities_obj = Facilities.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = self.serializer_class(Facilities_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    
+    def delete(self,request,pk):
+        try:
+            Facilities_obj = Facilities.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        Facilities_obj.delete()
+        return Response('Data Deleted!')
 
 class ServiceApiView(GenericAPIView):
     filter_backends = [DjangoFilterBackend]
@@ -278,6 +358,26 @@ class ServiceApiView(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+    
+    def put(self,request, pk):
+        try:
+            service_obj = Service.objects.get(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = self.serializer_class(service_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    
+    def delete(self,request,pk):
+        try:
+            service_obj = Service.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        service_obj.delete()
+        return Response('Data Deleted!')
         
 
 class EmployeeViewApi(GenericAPIView):
@@ -313,7 +413,14 @@ class EmployeeViewApi(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
-
+    
+    def delete(self,request,pk):
+        try:
+            emp_obj = EmployeeDetail.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        emp_obj.delete()
+        return Response('Data Deleted!')
 
     
    
