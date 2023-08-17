@@ -43,7 +43,10 @@ def RoomTypeView(request):
             return Response(serializer.errors)
         
 @api_view(['GET', 'POST'])
-def MenuTypeView(request):
+@authentication_classes([TokenAuthentication])  # You can choose the appropriate authentication class here
+@permission_classes([IsAuthenticated,RestaurantUserPermisssion])
+def MenuTypeView(request, pk):
+
     if request.method == 'GET':
         menu_type_obj = MenuType.objects.all()
         serializer = MenuTypeSerializer(menu_type_obj, many=True)
@@ -57,11 +60,34 @@ def MenuTypeView(request):
         else:
             return Response(serializer.errors)
     
+    elif request.method == 'PUT':
+        try:
+            menu_type_obj = MenuType.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = RoomTypeSerializers(menu_type_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    
+    elif request.method == 'DELETE':
+        try:
+            menu_type_obj = MenuType.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        menu_type_obj.delete()
+        return Response('Data Deleted!')
+    
+    
 
 class CustomerDetailsViewAPi(GenericAPIView):
     filter_backends = [DjangoFilterBackend]
     serializer_class = CustomerDetailserializers
-
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, FrontDeskUserPermission]
+    filterset_fields = ['email', 'phone_number']
 
     def get(self,request):
         customer_detail_obj = CustomerDetail.objects.all()
@@ -76,6 +102,7 @@ class CustomerDetailsViewAPi(GenericAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+        
     def delete(self,request,pk):
         try:
             customer_obj = CustomerDetail.objects.filter(id = pk)
@@ -86,20 +113,22 @@ class CustomerDetailsViewAPi(GenericAPIView):
     
     def put(self, request, pk):
         try:
-            customer_obj = CustomerDetail.objects.filter(id = pk)
-        except:
-            return Response('Data Not Found!')
+            customer_obj = CustomerDetail.objects.get(id=pk)
+        except CustomerDetail.DoesNotExist:
+            return Response('Data Not Found!', status=404)
+
         serializer = self.serializer_class(customer_obj, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         else:
-            return Response(serializer.errors)
-    
+            return Response(serializer.errors, status=400)
     
 
 
 @api_view(['GET','PUT','DELETE'])
+@authentication_classes([TokenAuthentication])  # You can choose the appropriate authentication class here
+@permission_classes([IsAuthenticated,FrontDeskUserPermission])
 def RoomTypeDetailsView(request,pk):
     if request.method == 'GET':
         try:
@@ -139,8 +168,6 @@ def RoomTypeDetailsView(request,pk):
 #         return Response(serializer.data)
      
 
-    
-
 class RoomApiView(GenericAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['room_type', 'status'] 
@@ -172,7 +199,7 @@ class RoomApiView(GenericAPIView):
     
     def put(self, request, pk):
         try:
-            room_type_obj = Room.objects.get(id = pk)
+            room_type_obj = Room.objects.filter(id = pk)
         except:
             return Response('Data Not Found!')
         serializer = self.serializer_class(room_type_obj, data=request.data)
@@ -205,7 +232,7 @@ class FoodApiView(GenericAPIView):
     
     def delete(self,request,pk):
         try:
-            Food_type_obj = Food.objects.filter(id = pk)
+            Food_type_obj = Food.objects.get(id = pk)
         except:
             return Response('Data Not Found!')
         Food_type_obj.delete()
@@ -228,7 +255,8 @@ class BillApiView(GenericAPIView):
     filter_backends = [DjangoFilterBackend]
     serializer_class = BillSerializer 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, AccountingUserPermission]  # Apply the custom permission
+    permission_classes = [IsAuthenticated, AccountingUserPermission]
+    filterset_fields = ['paymentdate' , 'status']  
 
     def get(self, request):
         bill_obj = Bill.objects.all()
@@ -269,7 +297,8 @@ class paymentinfoApiView(GenericAPIView):
     filter_backends = [DjangoFilterBackend]
     serializer_class = Paymentinfoserializers 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, PaymentinfoUserPermission]  # Apply the custom permission
+    permission_classes = [IsAuthenticated, PaymentinfoUserPermission]  
+    filterset_fields = ['payment_method', 'paid_amount']
 
     def get(self, request):
         payment_obj = Payment_info.objects.all()
@@ -311,6 +340,7 @@ class FacilitiesApiView(GenericAPIView):
     serializer_class = Facilitiesserializers 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, ManagementUserPermission]
+    filterset_fields = ['name']
 
     def get(self,request):
         facility_obj = Facilities.objects.all()
@@ -351,6 +381,7 @@ class ServiceApiView(GenericAPIView):
     serializer_class = Serviceserializers 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, ManagementUserPermission]
+    filterset_fields = ['name']
 
     def get(self,request):
         facility_obj = Service.objects.all()
@@ -389,7 +420,7 @@ class ServiceApiView(GenericAPIView):
 
 class EmployeeViewApi(GenericAPIView):
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name', 'phone_number']
+    filterset_fields = ['name', 'phone_number', 'email']
     serializer_class = EmployeeDetailserializers 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, ManagementUserPermission]
@@ -411,7 +442,7 @@ class EmployeeViewApi(GenericAPIView):
     
     def put(self,request, pk):
         try:
-            emp_obj = EmployeeDetail.objects.get(id = pk)
+            emp_obj = EmployeeDetail.objects.filter(id = pk)
         except:
             return Response('Data Not Found!')
         serializer = self.serializer_class(emp_obj, data=request.data)

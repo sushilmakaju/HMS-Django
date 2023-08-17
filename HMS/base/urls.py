@@ -11,6 +11,7 @@ urlpatterns = [
     path('login/',login_view, name='login_view'),
     path('register/',register_view, name='register_view'),
     path('menutype/',MenuTypeView, name='MenuTypeView'),
+    path('menutype/<pk>',MenuTypeView, name='MenuTypeView'),
     path('Food/<pk>',FoodApiView.as_view(), name='FoodApiView'),
     path('Food/',FoodApiView.as_view(), name='FoodApiView'),
     path('Bill/',BillApiView.as_view(), name='BillApiView'),
