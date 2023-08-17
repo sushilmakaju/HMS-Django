@@ -57,38 +57,45 @@ def MenuTypeView(request):
         else:
             return Response(serializer.errors)
     
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
-def CustomerDetailsView(request,pk):
-    # queryobj = {'name':'sushil'}
-    # return Response(queryobj)
-    if request.method == 'GET':
+
+class CustomerDetailsViewAPi(GenericAPIView):
+    filter_backends = [DjangoFilterBackend]
+    serializer_class = CustomerDetailserializers
+
+
+    def get(self,request):
         customer_detail_obj = CustomerDetail.objects.all()
-        serializer = CustomerDetailserializers(customer_detail_obj, many = True)
+        filter_obj = self.filter_queryset(customer_detail_obj)
+        serializer = self.serializer_class(filter_obj, many = True)
         return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = CustomerDetailserializers(data=request.data)
-        if serializer.is_valid():
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
-    elif request.method == 'PUT':
-        try:
-            customer_obj = CustomerDetail.objects.get(id = pk)
-        except:
-            return Response('Data Not Found!')
-        serializer = CustomerDetailserializers(customer_obj, data=request.data)
+   
+    def post(self,request):
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
-    elif request.method == 'DELETE':
+    def delete(self,request,pk):
         try:
-            customer_obj = CustomerDetail.objects.get(id = pk)
+            customer_obj = CustomerDetail.objects.filter(id = pk)
         except:
             return Response('Data Not Found!')
         customer_obj.delete()
         return Response('Data Deleted!')
+    
+    def put(self, request, pk):
+        try:
+            customer_obj = CustomerDetail.objects.filter(id = pk)
+        except:
+            return Response('Data Not Found!')
+        serializer = self.serializer_class(customer_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    
     
 
 
